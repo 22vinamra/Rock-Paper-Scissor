@@ -1,23 +1,70 @@
 import random
+from hangman_wrong_steps import steps
+from words import words
 
-def play():
-    user = input("What's your choice? 'r' for rock, 'p' for paper, 's' for scissors\n")
-    computer = random.choice(['r', 'p', 's'])
+def get_valid_words(words):
+    word = random.choice(words)
+    while '-' in word or ' ' in word:
+        word = random.choice(words)
+    
+    return word.upper()
 
-    if user == computer:
-        return 'It\'s a tie'
+picked = get_valid_words(words)
 
-    # r > s, s > p, p > r
-    if is_win(user, computer):
-        return 'You won!'
+print("The word has", len(picked), "letters")
 
-    return 'You lost!'
+for i in range(len(picked)):
+    print('_', ' ', end='')
 
-def is_win(player, opponent):
-    # return true if player wins
-    # r > s, s > p, p > r
-    if (player == 'r' and opponent == 's') or (player == 's' and opponent == 'p') \
-        or (player == 'p' and opponent == 'r'):
-        return True
+print()
 
-print(play())
+right = ['_'] * len(picked)
+wrong = []
+
+def right_letter():
+    for i in right:
+        print(i, ' ', end='')
+    print()
+
+def wrong_letter():
+    print("Wrong letters:", end='')
+    for i in wrong:
+        print(i, ' ', end='')
+    print()
+
+
+while True:
+    guess = input("Guess a letter: ").upper()
+
+    if guess in picked:
+
+        index = 0
+        for i in picked:
+            if i == guess:
+                right[index] = guess
+            index = index + 1
+
+        right_letter()
+        wrong_letter()
+        steps(len(wrong))
+
+    elif guess not in picked:
+        if guess in wrong:
+            print("You already guessed", guess)
+            wrong_letter()
+        else:
+            print(guess, "is not in my word")
+            wrong.append(guess)
+            right_letter()
+            wrong_letter()
+            steps(len(wrong))
+
+    if len(wrong) > 4:
+        print("Game Over")
+        print("I picked", picked)
+        break
+
+    if '_' not in right:
+        print("Congratulations!!! You have won the Game")
+        print("I picked", picked)
+        break
